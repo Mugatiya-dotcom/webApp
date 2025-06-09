@@ -176,4 +176,48 @@ document.addEventListener('DOMContentLoaded', function() {
       URL.revokeObjectURL(url);
     });
   }
+
+  // Add search and clear functionality
+  const searchBtn = Array.from(buttons).find(btn => btn.textContent.trim() === 'Search');
+  const clearBtn = Array.from(buttons).find(btn => btn.textContent.trim() === 'Clear');
+  let lastSearch = null;
+
+  if (searchBtn) {
+    searchBtn.addEventListener('click', function(event) {
+      event.preventDefault();
+      const form = document.querySelector('.sent');
+      const inputs = form.querySelectorAll('.input');
+      const searchValues = Array.from(inputs).map(input => input.value.trim().toLowerCase());
+      const stored = getStoredData();
+      // If all search fields are empty, show all
+      if (searchValues.every(val => val === '')) {
+        renderTable(stored);
+        lastSearch = null;
+        return;
+      }
+      // Filter rows: match if any field matches (case-insensitive, partial match)
+      const filtered = stored.filter(row =>
+        row.some((cell, i) => searchValues[i] && cell.toLowerCase().includes(searchValues[i]))
+      );
+      renderTable(filtered);
+      lastSearch = filtered;
+    });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function(event) {
+      event.preventDefault();
+      // Clear all input fields
+      const form = document.querySelector('.sent');
+      const inputs = form.querySelectorAll('.input');
+      inputs.forEach(input => {
+        input.value = '';
+        input.style.borderColor = 'black';
+        input.style.color = 'black';
+      });
+      // Show full table
+      renderTable(getStoredData());
+      lastSearch = null;
+    });
+  }
 });
