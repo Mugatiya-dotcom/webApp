@@ -177,3 +177,68 @@ th,
 td {
   text-align: left;
 }
+
+@media (max-width: 900px) {
+  .sent {
+    flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
+  }
+  .input-container {
+    min-width: unset;
+    max-width: 100%;
+    width: 100%;
+  }
+  .buttonz {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: 0;
+    justify-content: center;
+    align-items: center;
+  }
+  .fancy {
+    font-size: 1.1rem;
+    padding: 0.5rem 1.2rem;
+    margin-bottom: 0;
+  }
+}
+@media (max-width: 600px) {
+  .top {
+    margin-bottom: 10px;
+  }
+  .topic h1 {
+    font-size: 2rem;
+  }
+  .input {
+    font-size: 0.95rem;
+    height: 36px;
+    padding: 8px;
+  }
+  .input-container {
+    padding: 0 5px;
+  }
+  .buttonz {
+    gap: 6px;
+  }
+  table {
+    font-size: 0.9rem;
+  }
+  th, td {
+    padding: 6px;
+  }
+}
+@media (max-width: 400px) {
+  .topic h1 {
+    font-size: 1.2rem;
+  }
+  .input {
+    font-size: 0.8rem;
+    height: 28px;
+    padding: 5px;
+  }
+  .fancy {
+    font-size: 0.9rem;
+    padding: 0.2rem 0.7rem;
+  }
+}
