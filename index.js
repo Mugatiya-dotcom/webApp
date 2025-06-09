@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!document.getElementById('selectRowStyle')) {
       const style = document.createElement('style');
       style.id = 'selectRowStyle';
-      style.textContent = '.selected-row { background: #ffe082 !important; }';
+      style.textContent = '.selected-row { background:rgb(255, 130, 130) !important; }';
       document.head.appendChild(style);
     }
     // Add Delete button if not present
@@ -135,26 +135,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Add export to Excel functionality
-  // Create and add the export button if not already present
-  let exportBtn = document.getElementById('exportExcelBtn');
-  if (!exportBtn) {
-    // Create a button styled like the fancy buttons
-    exportBtn = document.createElement('a');
-    exportBtn.id = 'exportExcelBtn';
-    exportBtn.className = 'fancy';
-    exportBtn.href = '#';
-    exportBtn.innerHTML = `
-      <span class="top-key"></span>
-      <span class="text">to Excel</span>
-      <span class="bottom-key-1"></span>
-      <span class="bottom-key-2"></span>
-    `;
-    const tableContainer = document.querySelector('.bottom');
-    tableContainer.insertBefore(exportBtn, tableContainer.firstChild);
+  // Remove export to Excel button creation from JS (handled in HTML)
+  // Add export to Excel functionality to the button in .buttonz
+  const exportBtn = Array.from(buttons).find(btn => btn.textContent.trim().toLowerCase() === 'to excel');
+  if (exportBtn) {
     exportBtn.addEventListener('click', function(e) {
       e.preventDefault();
-      const table = tableContainer.querySelector('table');
+      const table = document.querySelector('.bottom table');
       if (!table) return;
       let csv = '';
       for (let row of table.rows) {
@@ -199,6 +186,12 @@ document.addEventListener('DOMContentLoaded', function() {
       const filtered = stored.filter(row =>
         row.some((cell, i) => searchValues[i] && cell.toLowerCase().includes(searchValues[i]))
       );
+      if (filtered.length === 0) {
+        const tableContainer = document.querySelector('.bottom');
+        tableContainer.innerHTML = '<div style="padding:20px;color:red;font-weight:bold;">Searched result doesn\'t match</div>';
+        lastSearch = [];
+        return;
+      }
       renderTable(filtered);
       lastSearch = filtered;
     });
@@ -215,7 +208,9 @@ document.addEventListener('DOMContentLoaded', function() {
         input.style.borderColor = 'black';
         input.style.color = 'black';
       });
-      // Show full table
+      // Show full table and clear any search message
+      const tableContainer = document.querySelector('.bottom');
+      tableContainer.innerHTML = '';
       renderTable(getStoredData());
       lastSearch = null;
     });
