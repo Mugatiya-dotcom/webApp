@@ -1,18 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // Select all buttons with class 'fancy' inside .buttonz
   const buttons = document.querySelectorAll('.buttonz .fancy');
-  // Find the 'Add' button by its text
   const addButton = Array.from(buttons).find(btn => btn.textContent.trim() === 'Add');
-
-  // Helper: get data from localStorage
   function getStoredData() {
     return JSON.parse(localStorage.getItem('complainData') || '[]');
   }
-  // Helper: save data to localStorage
   function saveStoredData(dataArr) {
     localStorage.setItem('complainData', JSON.stringify(dataArr));
   }
-  // Helper: render table from data array
   function renderTable(dataArr) {
     const tableContainer = document.querySelector('.bottom');
     let table = tableContainer.querySelector('table');
@@ -49,64 +43,28 @@ document.addEventListener('DOMContentLoaded', function() {
         td.style.padding = '8px';
         row.appendChild(td);
       });
-      // Make row selectable
       row.style.cursor = 'pointer';
       row.addEventListener('click', function() {
         Array.from(table.rows).forEach(r => r.classList.remove('selected-row'));
         row.classList.add('selected-row');
-        // Store selected row index (excluding header)
         table.setAttribute('data-selected-index', rowIndex);
       });
       table.appendChild(row);
     });
     tableContainer.appendChild(table);
-    // Add style for selected row
     if (!document.getElementById('selectRowStyle')) {
       const style = document.createElement('style');
       style.id = 'selectRowStyle';
       style.textContent = '.selected-row { background:rgb(255, 130, 130) !important; }';
       document.head.appendChild(style);
     }
-    // Add Delete button if not present
-    let delBtn = document.getElementById('deleteRowBtn');
-    if (!delBtn) {
-      delBtn = document.createElement('a');
-      delBtn.id = 'deleteRowBtn';
-      delBtn.className = 'fancy';
-      delBtn.href = '#';
-      delBtn.innerHTML = `
-        <span class="top-key"></span>
-        <span class="text">Delete Selected</span>
-        <span class="bottom-key-1"></span>
-        <span class="bottom-key-2"></span>
-      `;
-      delBtn.style.marginRight = '10px';
-      tableContainer.insertBefore(delBtn, tableContainer.firstChild);
-      delBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const table = tableContainer.querySelector('table');
-        const idx = parseInt(table.getAttribute('data-selected-index'));
-        if (!isNaN(idx)) {
-          const stored = getStoredData();
-          stored.splice(idx, 1);
-          saveStoredData(stored);
-          renderTable(stored);
-        }
-      });
-    }
   }
-
-  // On page load, render table from localStorage
   renderTable(getStoredData());
-
   addButton.addEventListener('click', function(event) {
-    event.preventDefault(); // Prevent form submission
-    // Select all input fields inside the form
+    event.preventDefault();
     const form = document.querySelector('.sent');
     const inputs = form.querySelectorAll('.input');
-    // Collect values
     const data = Array.from(inputs).map(input => input.value.trim());
-    // Check for empty fields
     let hasEmpty = false;
     inputs.forEach(input => {
       if (input.value.trim() === '') {
@@ -119,24 +77,18 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
     if (hasEmpty) {
-      // Remove alert, just highlight fields
       return;
     }
-    // Save to localStorage
     const stored = getStoredData();
     stored.push(data);
     saveStoredData(stored);
     renderTable(stored);
-    // Clear input fields after adding
     inputs.forEach(input => {
       input.value = '';
       input.style.borderColor = 'black';
       input.style.color = 'black';
     });
   });
-
-  // Remove export to Excel button creation from JS (handled in HTML)
-  // Add export to Excel functionality to the button in .buttonz
   const exportBtn = Array.from(buttons).find(btn => btn.textContent.trim().toLowerCase() === 'to excel');
   if (exportBtn) {
     exportBtn.addEventListener('click', function(e) {
@@ -163,12 +115,9 @@ document.addEventListener('DOMContentLoaded', function() {
       URL.revokeObjectURL(url);
     });
   }
-
-  // Add search and clear functionality
   const searchBtn = Array.from(buttons).find(btn => btn.textContent.trim() === 'Search');
   const clearBtn = Array.from(buttons).find(btn => btn.textContent.trim() === 'Clear');
   let lastSearch = null;
-
   if (searchBtn) {
     searchBtn.addEventListener('click', function(event) {
       event.preventDefault();
@@ -176,13 +125,11 @@ document.addEventListener('DOMContentLoaded', function() {
       const inputs = form.querySelectorAll('.input');
       const searchValues = Array.from(inputs).map(input => input.value.trim().toLowerCase());
       const stored = getStoredData();
-      // If all search fields are empty, show all
       if (searchValues.every(val => val === '')) {
         renderTable(stored);
         lastSearch = null;
         return;
       }
-      // Filter rows: match if any field matches (case-insensitive, partial match)
       const filtered = stored.filter(row =>
         row.some((cell, i) => searchValues[i] && cell.toLowerCase().includes(searchValues[i]))
       );
@@ -196,11 +143,9 @@ document.addEventListener('DOMContentLoaded', function() {
       lastSearch = filtered;
     });
   }
-
   if (clearBtn) {
     clearBtn.addEventListener('click', function(event) {
       event.preventDefault();
-      // Clear all input fields
       const form = document.querySelector('.sent');
       const inputs = form.querySelectorAll('.input');
       inputs.forEach(input => {
@@ -208,11 +153,25 @@ document.addEventListener('DOMContentLoaded', function() {
         input.style.borderColor = 'black';
         input.style.color = 'black';
       });
-      // Show full table and clear any search message
       const tableContainer = document.querySelector('.bottom');
       tableContainer.innerHTML = '';
       renderTable(getStoredData());
       lastSearch = null;
+    });
+  }
+  const deleteBtn = Array.from(buttons).find(btn => btn.textContent.trim().toLowerCase() === 'delete');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const table = document.querySelector('.bottom table');
+      if (!table) return;
+      const idx = parseInt(table.getAttribute('data-selected-index'));
+      if (!isNaN(idx)) {
+        const stored = getStoredData();
+        stored.splice(idx, 1);
+        saveStoredData(stored);
+        renderTable(stored);
+      }
     });
   }
 });
